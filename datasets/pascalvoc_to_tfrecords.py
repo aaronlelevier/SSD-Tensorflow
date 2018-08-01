@@ -82,7 +82,7 @@ def _process_image(directory, name):
     filename = directory + DIRECTORY_IMAGES + name + '.jpg'
 
     try:
-        image_data = tf.gfile.FastGFile(filename, 'r').read()
+        image_data = tf.gfile.FastGFile(filename, 'rb').read()
     except UnicodeDecodeError as e:
         print(f'filename: {filename}')
         raise e
