@@ -80,7 +80,12 @@ def _process_image(directory, name):
     """
     # Read the image file.
     filename = directory + DIRECTORY_IMAGES + name + '.jpg'
-    image_data = tf.gfile.FastGFile(filename, 'r').read()
+
+    try:
+        image_data = tf.gfile.FastGFile(filename, 'r').read()
+    except UnicodeDecodeError as e:
+        print(f'filename: {filename}')
+        raise e
 
     # Read the XML annotation file.
     filename = os.path.join(directory, DIRECTORY_ANNOTATIONS, name + '.xml')
