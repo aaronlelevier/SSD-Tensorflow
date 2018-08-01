@@ -104,6 +104,16 @@ tf.app.flags.DEFINE_boolean(
 FLAGS = tf.app.flags.FLAGS
 
 
+def flatten(x):
+    result = []
+    for el in x:
+        if isinstance(el, tuple):
+            result.extend(flatten(el))
+        else:
+            result.append(el)
+    return result
+
+
 def main(_):
     if not FLAGS.dataset_dir:
         raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -223,10 +233,10 @@ def main(_):
             dict_metrics = {}
             # First add all losses.
             for loss in tf.get_collection(tf.GraphKeys.LOSSES):
-                dict_metrics[loss.op.name] = slim.metrics.streaming_mean(loss)
+                dict_metrics[loss.op.name] = tf.metrics.mean(loss)
             # Extra losses as well.
             for loss in tf.get_collection('EXTRA_LOSSES'):
-                dict_metrics[loss.op.name] = slim.metrics.streaming_mean(loss)
+                dict_metrics[loss.op.name] = tf.metrics.mean(loss)
 
             # Add metrics to summaries and Print on screen.
             for name, metric in dict_metrics.items():
@@ -239,8 +249,8 @@ def main(_):
             # FP and TP metrics.
             tp_fp_metric = tfe.streaming_tp_fp_arrays(num_gbboxes, tp, fp, rscores)
             for c in tp_fp_metric[0].keys():
-                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c],
-                                                tp_fp_metric[1][c])
+                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
+                                                tp_fp_metric[1][c][0])
 
             # Add to summaries precision/recall values.
             aps_voc07 = {}
@@ -315,7 +325,7 @@ def main(_):
                 checkpoint_path=checkpoint_path,
                 logdir=FLAGS.eval_dir,
                 num_evals=num_batches,
-                eval_op=list(names_to_updates.values()),
+                eval_op=flatten(list(names_to_updates.values())),
                 variables_to_restore=variables_to_restore,
                 session_config=config)
             # Log time spent.

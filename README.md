@@ -26,22 +26,66 @@ and then start a jupyter notebook with
 jupyter notebook notebooks/ssd_notebook.ipynb
 ```
 
-
 ## Datasets
+
+### `DATASET_DIR` files setup
+
+These commands create the proper directories for the `DATASET_DIR` paths above.
+
+```
+# trainval
+mkdir -p $HOME/data/VOC2007/trainval
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+tar xvf VOCtrainval_06-Nov-2007.tar
+
+# test
+mkdir -p $HOME/data/VOC2007/test
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+tar xvf VOCtest_06-Nov-2007.tar
+```
+
+### Convert VOC 2007 to `tfrecords`
 
 The current version only supports Pascal VOC datasets (2007 and 2012). In order to be used for training a SSD model, the former need to be converted to TF-Records using the `tf_convert_data.py` script:
 ```bash
-DATASET_DIR=./VOC2007/test/
+DATASET_DIR=$HOME/data/VOC2007/test/VOCdevkit/VOC2007/
 OUTPUT_DIR=./tfrecords
 python tf_convert_data.py \
     --dataset_name=pascalvoc \
     --dataset_dir=${DATASET_DIR} \
-    --output_name=voc_2007_train \
+    --output_name=voc_2007_test \
     --output_dir=${OUTPUT_DIR}
 ```
 Note the previous command generated a collection of TF-Records instead of a single file in order to ease shuffling during training.
 
 ## Evaluation on Pascal VOC 2007
+
+### To download the below Google Drive checkpoints
+
+Download `gdrive`
+
+[https://github.com/prasmussen/gdrive#downloads](https://github.com/prasmussen/gdrive#downloads)
+
+Check shasum against the download `gdrive` README
+
+```
+shasum <filename>
+```
+
+Add to path
+
+```
+sudo cp gdrive-linux-x64 /usr/local/bin/gdrive;
+sudo chmod a+x /usr/local/bin/gdrive;
+```
+
+The below table files can then be downloaded using:
+
+```
+gdrive download <google-doc-id>
+```
+
+### Performance
 
 The present TensorFlow implementation of SSD models have the following performances:
 
@@ -55,6 +99,7 @@ We are working hard at reproducing the same performance as the original [Caffe i
 
 After downloading and extracting the previous checkpoints, the evaluation metrics should be reproducible by running the following command:
 ```bash
+DATASET_DIR=./tfrecords/
 EVAL_DIR=./logs/
 CHECKPOINT_PATH=./checkpoints/VGG_VOC0712_SSD_300x300_ft_iter_120000.ckpt
 python eval_ssd_network.py \
