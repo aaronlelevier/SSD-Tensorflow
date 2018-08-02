@@ -223,10 +223,10 @@ def main(_):
             dict_metrics = {}
             # First add all losses.
             for loss in tf.get_collection(tf.GraphKeys.LOSSES):
-                dict_metrics[loss.op.name] = slim.metrics.streaming_mean(loss)
+                dict_metrics[loss.op.name] = tf.metrics.mean(loss)
             # Extra losses as well.
             for loss in tf.get_collection('EXTRA_LOSSES'):
-                dict_metrics[loss.op.name] = slim.metrics.streaming_mean(loss)
+                dict_metrics[loss.op.name] = tf.metrics.mean(loss)
 
             # Add metrics to summaries and Print on screen.
             for name, metric in dict_metrics.items():
