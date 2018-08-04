@@ -239,8 +239,14 @@ def main(_):
             # FP and TP metrics.
             tp_fp_metric = tfe.streaming_tp_fp_arrays(num_gbboxes, tp, fp, rscores)
             for c in tp_fp_metric[0].keys():
-                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c],
-                                                tp_fp_metric[1][c])
+                # NOTE: changed code because was getting a:
+                # TypeError: Can not convert a tuple into a Tensor or Operation.
+                # because each item `tp_fp_metric[0][c]` or `tp_fp_metric[1][c]`
+                # is a tuple
+                # dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c],
+                #                                 tp_fp_metric[1][c])
+                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
+                                                tp_fp_metric[1][c][0])
 
             # Add to summaries precision/recall values.
             aps_voc07 = {}
