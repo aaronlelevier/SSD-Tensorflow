@@ -26,8 +26,25 @@ and then start a jupyter notebook with
 jupyter notebook notebooks/ssd_notebook.ipynb
 ```
 
-
 ## Datasets
+
+### `DATASET_DIR` files setup
+
+These commands create the proper directories for the `DATASET_DIR` paths above.
+
+```
+# trainval
+mkdir -p $HOME/data/VOC2007/trainval
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+tar xvf VOCtrainval_06-Nov-2007.tar
+
+# test
+mkdir -p $HOME/data/VOC2007/test
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+tar xvf VOCtest_06-Nov-2007.tar
+```
+
+### Convert VOC 2007 to `tfrecords`
 
 The current version only supports Pascal VOC datasets (2007 and 2012). In order to be used for training a SSD model, the former need to be converted to TF-Records using the `tf_convert_data.py` script:
 ```bash
@@ -42,6 +59,33 @@ python tf_convert_data.py \
 Note the previous command generated a collection of TF-Records instead of a single file in order to ease shuffling during training.
 
 ## Evaluation on Pascal VOC 2007
+
+### To download the below Google Drive checkpoints
+
+Download `gdrive`
+
+[https://github.com/prasmussen/gdrive#downloads](https://github.com/prasmussen/gdrive#downloads)
+
+Check shasum against the download `gdrive` README
+
+```
+shasum <filename>
+```
+
+Add to path
+
+```
+sudo cp gdrive-linux-x64 /usr/local/bin/gdrive;
+sudo chmod a+x /usr/local/bin/gdrive;
+```
+
+The below table files can then be downloaded using:
+
+```
+gdrive download <google-doc-id>
+```
+
+### Performance
 
 The present TensorFlow implementation of SSD models have the following performances:
 
@@ -62,7 +106,7 @@ python eval_ssd_network.py \
     --eval_dir=${EVAL_DIR} \
     --dataset_dir=${DATASET_DIR} \
     --dataset_name=pascalvoc_2007 \
-    --dataset_split_name=train \
+    --dataset_split_name=test \
     --model_name=ssd_300_vgg \
     --checkpoint_path=${CHECKPOINT_PATH} \
     --batch_size=1
