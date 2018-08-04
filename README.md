@@ -31,7 +31,7 @@ jupyter notebook notebooks/ssd_notebook.ipynb
 
 The current version only supports Pascal VOC datasets (2007 and 2012). In order to be used for training a SSD model, the former need to be converted to TF-Records using the `tf_convert_data.py` script:
 ```bash
-DATASET_DIR=./data/VOC2007/test/VOCdevkit/VOC2007/
+DATASET_DIR=$HOME/data/VOC2007/test/VOCdevkit/VOC2007/
 OUTPUT_DIR=./tfrecords
 python tf_convert_data.py \
     --dataset_name=pascalvoc \
