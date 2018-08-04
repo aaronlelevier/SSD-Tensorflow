@@ -243,10 +243,10 @@ def main(_):
                 # TypeError: Can not convert a tuple into a Tensor or Operation.
                 # because each item `tp_fp_metric[0][c]` or `tp_fp_metric[1][c]`
                 # is a tuple
-                # dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c],
-                #                                 tp_fp_metric[1][c])
-                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
-                                                tp_fp_metric[1][c][0])
+                # dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
+                #                                 tp_fp_metric[1][c][0])
+                dict_metrics['tp_fp_%s' % c] = tf.convert_to_tensor(
+                    tp_fp_metric[0][c], tp_fp_metric[1][c])
 
             # Add to summaries precision/recall values.
             aps_voc07 = {}
