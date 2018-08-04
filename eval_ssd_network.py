@@ -104,6 +104,16 @@ tf.app.flags.DEFINE_boolean(
 FLAGS = tf.app.flags.FLAGS
 
 
+def flatten(x):
+    result = []
+    for el in x:
+        if isinstance(el, tuple):
+            result.extend(flatten(el))
+        else:
+            result.append(el)
+    return result
+
+
 def main(_):
     if not FLAGS.dataset_dir:
         raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -239,14 +249,8 @@ def main(_):
             # FP and TP metrics.
             tp_fp_metric = tfe.streaming_tp_fp_arrays(num_gbboxes, tp, fp, rscores)
             for c in tp_fp_metric[0].keys():
-                # NOTE: changed code because was getting a:
-                # TypeError: Can not convert a tuple into a Tensor or Operation.
-                # because each item `tp_fp_metric[0][c]` or `tp_fp_metric[1][c]`
-                # is a tuple
-                # dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
-                #                                 tp_fp_metric[1][c][0])
-                dict_metrics['tp_fp_%s' % c] = tf.convert_to_tensor(
-                    tp_fp_metric[0][c], tp_fp_metric[1][c])
+                dict_metrics['tp_fp_%s' % c] = (tp_fp_metric[0][c][0],
+                                                tp_fp_metric[1][c][0])
 
             # Add to summaries precision/recall values.
             aps_voc07 = {}
@@ -321,7 +325,7 @@ def main(_):
                 checkpoint_path=checkpoint_path,
                 logdir=FLAGS.eval_dir,
                 num_evals=num_batches,
-                eval_op=list(names_to_updates.values()),
+                eval_op=flatten(list(names_to_updates.values())),
                 variables_to_restore=variables_to_restore,
                 session_config=config)
             # Log time spent.
