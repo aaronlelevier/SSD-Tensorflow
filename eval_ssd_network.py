@@ -99,6 +99,8 @@ tf.app.flags.DEFINE_float(
     'gpu_memory_fraction', 0.1, 'GPU memory fraction to use.')
 tf.app.flags.DEFINE_boolean(
     'wait_for_checkpoints', False, 'Wait for new checkpoints in the eval loop.')
+tf.app.flags.DEFINE_string(
+    'device', '/cpu:0', 'The type of tf.device to run on. CPU or GPU')
 
 
 FLAGS = tf.app.flags.FLAGS
@@ -147,7 +149,7 @@ def main(_):
         # =================================================================== #
         # Create a dataset provider and batches.
         # =================================================================== #
-        with tf.device('/cpu:0'):
+        with tf.device(FLAGS.device):
             with tf.name_scope(FLAGS.dataset_name + '_data_provider'):
                 provider = slim.dataset_data_provider.DatasetDataProvider(
                     dataset,
@@ -200,7 +202,7 @@ def main(_):
                        b_gclasses, b_glocalisations, b_gscores)
 
         # Performing post-processing on CPU: loop-intensive, usually more efficient.
-        with tf.device('/device:CPU:0'):
+        with tf.device(FLAGS.device):
             # Detected objects from SSD output.
             localisations = ssd_net.bboxes_decode(localisations, ssd_anchors)
             rscores, rbboxes = \
@@ -229,7 +231,7 @@ def main(_):
         # =================================================================== #
         # Evaluation metrics.
         # =================================================================== #
-        with tf.device('/device:CPU:0'):
+        with tf.device(FLAGS.device):
             dict_metrics = {}
             # First add all losses.
             for loss in tf.get_collection(tf.GraphKeys.LOSSES):
@@ -302,7 +304,8 @@ def main(_):
         # Evaluation loop.
         # =================================================================== #
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=FLAGS.gpu_memory_fraction)
-        config = tf.ConfigProto(log_device_placement=False, gpu_options=gpu_options)
+        config = tf.ConfigProto(
+            allow_soft_placement=True, log_device_placement=False, gpu_options=gpu_options)
         # config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
         # Number of batches...

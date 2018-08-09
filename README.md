@@ -109,7 +109,8 @@ python eval_ssd_network.py \
     --dataset_split_name=test \
     --model_name=ssd_300_vgg \
     --checkpoint_path=${CHECKPOINT_PATH} \
-    --batch_size=1
+    --batch_size=1 \
+    --device=/device:GPU:0
 ```
 The evaluation script provides estimates on the recall-precision curve and compute the mAP metrics following the Pascal VOC 2007 and 2012 guidelines.
 
